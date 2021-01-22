@@ -13,6 +13,9 @@
 #include <arpa/inet.h>
 #include <string.h>
 
+#include <sys/stat.h>
+#include <fcntl.h>
+
 #define LISTENQ 25
 #define PORT 9002
 #define SA struct sockaddr

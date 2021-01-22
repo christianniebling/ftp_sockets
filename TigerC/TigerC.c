@@ -1,6 +1,4 @@
 #include "unp.h"
-#include <sys/stat.h>
-#include <fcntl.h>
 #define MAXLINE 256
 #define MAXSIZE 256
 #define ADDRSIZE 20
@@ -13,7 +11,7 @@ int main(int argc, char** argv)
 	struct sockaddr_in servaddr;
 
 
-	int option_index = 0;
+	int option_index = 0; 
 	char *getoptOptions = "h";
 	struct option long_options[] = {
 	{"help", no_argument, 0, 'h'},
@@ -21,23 +19,23 @@ int main(int argc, char** argv)
 	};
 
 
-	char *buffer, *meow, *token1, *token2, *token3, *token4;
-	size_t bufsize = MAXLINE;
+	char *buffer, *token1, *token2, *token3, *token4;
+	size_t bufsize = MAXLINE; /* variable to be passed to getline() */
 	int convert_bit, counter, fp, file_size;
 	char addr[ADDRSIZE] = "";
 	char text[MAXLINE];
 	char user[50];
 	char pass[50];
-	buffer = (char *)malloc(bufsize * sizeof(char));
+	buffer = (char *)malloc(bufsize * sizeof(char)); /* getline() requires dynamically allocated data for possible resizing */
 
 	if(buffer == NULL)
 	{
-		fprintf(stdout, "oops we ran outta space somehow...\n");
+		fprintf(stdout, "Unable to allocate buffer space\n");
 		exit(0);
 	}
 
 
-	 /*parse the command line tho 0.0 */
+	 /* parse input from the command line */
 	while((opt = getopt_long(argc, argv, getoptOptions, long_options, &option_index)) != -1)
 	{
 		switch(opt)
@@ -52,15 +50,14 @@ int main(int argc, char** argv)
 	}
 
 
-	/* parse the stdin tho 0.0 */
-	bzero(buffer, bufsize);
-	getline(&buffer, &bufsize, stdin);
-	bzero(text, MAXLINE);
-	strncpy(text, buffer, strlen(buffer));
-	meow = strtok(text, "\n"); /* get rid of pesky newline */
+	/* parse input from stdin */
+	bzero(buffer, bufsize); /* clear buffer */
+	getline(&buffer, &bufsize, stdin); /* reads stream from stdin to buffer */
+	bzero(text, MAXLINE); /* clear text array  */
+	strncpy(text, buffer, strlen(buffer))  /* copy the value from buffer into text */
 
-	token1 = strtok(text, " ");
-	if(strcmp(token1, "tconnect") == 0)
+	token1 = strtok(text, " "); /* the space is the delimiter and token1 is the command to be executed */
+	if(strcmp(token1, "tconnect") == 0) /* if the command is to connect */
 	{
 		token2 = strtok(NULL, " ");
 		fprintf(stdout, "connect to IP: %s\n", token2);
@@ -128,9 +125,9 @@ int main(int argc, char** argv)
 		bzero(text, bufsize);
 		strncpy(text, buffer, strlen(buffer));
 
-		meow = strtok(text, "\n"); /* get rid of pesky newline */
-		fprintf(stdout, "write to server: %s.\n", meow);
-		write(sockfd, meow, bufsize); /* write the command to the socket */
+		text = removeNewline(text);
+		fprintf(stdout, "write to server: %s.\n", text);
+		write(sockfd, text, bufsize); /* write the command to the socket */
 
 		bzero(buffer, bufsize); /* clear the buffer */
 		read(sockfd, buffer, bufsize); /* wait for the socket to respond */

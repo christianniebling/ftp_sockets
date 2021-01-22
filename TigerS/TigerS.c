@@ -1,6 +1,4 @@
 #include "unp.h"
-#include <sys/stat.h>
-#include <fcntl.h>
 #define MAXLINE 256
 #define MAXSIZE 256
 
