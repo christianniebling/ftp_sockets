@@ -19,7 +19,7 @@ int main(int argc, char** argv)
 	};
 
 
-	char *buffer, *token1, *token2, *token3, *token4;
+	char *buffer, *token0, *token1, *token2, *token3, *token4;
 	size_t bufsize = MAXLINE; /* variable to be passed to getline() */
 	int convert_bit, counter, fp, file_size;
 	char addr[ADDRSIZE] = "";
@@ -54,7 +54,7 @@ int main(int argc, char** argv)
 	bzero(buffer, bufsize); /* clear buffer */
 	getline(&buffer, &bufsize, stdin); /* reads stream from stdin to buffer */
 	bzero(text, MAXLINE); /* clear text array  */
-	strncpy(text, buffer, strlen(buffer))  /* copy the value from buffer into text */
+	strncpy(text, buffer, strlen(buffer));  /* copy the value from buffer into text */
 
 	token1 = strtok(text, " "); /* the space is the delimiter and token1 is the command to be executed */
 	if(strcmp(token1, "tconnect") == 0) /* if the command is to connect */
@@ -125,9 +125,9 @@ int main(int argc, char** argv)
 		bzero(text, bufsize);
 		strncpy(text, buffer, strlen(buffer));
 
-		text = removeNewline(text);
-		fprintf(stdout, "write to server: %s.\n", text);
-		write(sockfd, text, bufsize); /* write the command to the socket */
+		token0 = strtok(text, " ");
+		fprintf(stdout, "write to server: %s.\n", token0);
+		write(sockfd, token0, bufsize); /* write the command to the socket */
 
 		bzero(buffer, bufsize); /* clear the buffer */
 		read(sockfd, buffer, bufsize); /* wait for the socket to respond */
