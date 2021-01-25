@@ -19,3 +19,4 @@
 #define LISTENQ 25
 #define PORT 9002
 #define SA struct sockaddr
+#define MAXSIZE 256

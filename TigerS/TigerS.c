@@ -1,6 +1,4 @@
 #include "unp.h"
-#define MAXLINE 256
-#define MAXSIZE 256
 
 int send_over_socket(int output_fd, char *file_name);
 
@@ -10,14 +8,14 @@ int main(int argc, char** argv)
 	int listenfd, connfd, file_size, fp, counter, verified;
 	socklen_t len;
 	struct sockaddr_in servaddr, cliaddr;
-	char buff[MAXLINE];
-	char text[MAXLINE];
-	char user [50] = "";
-	char pass [50] = "";
-	char cuser [50] = "";
-	char cpass [50] = "";
+	char buff[MAXSIZE];
+	char text[MAXSIZE];
+	char user [MAXSIZE] = "";
+	char pass [MAXSIZE] = "";
+	char cuser [MAXSIZE] = "";
+	char cpass [MAXSIZE] = "";
 	char *token1, *token2, *b;
-	size_t bufsize = MAXLINE;
+	size_t bufsize = MAXSIZE;
 	b = buff;
 
 	listenfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -45,9 +43,9 @@ int main(int argc, char** argv)
 
 
 		/* get the username and password */
-		bzero(buff, MAXLINE);
-		bzero(text, MAXLINE);
-		read(connfd, buff, MAXLINE);
+		bzero(buff, MAXSIZE);
+		bzero(text, MAXSIZE);
+		read(connfd, buff, MAXSIZE);
 		strncpy(text, buff, strlen(buff));
 		strtok(text, " ");
 		token1 = strtok(NULL, " ");
@@ -57,8 +55,8 @@ int main(int argc, char** argv)
 		fprintf(stdout, "username: %s. \npassword: %s.\n", user, pass);
 
 		fptr = fopen("secret.txt", "r");
-		bzero(buff, MAXLINE);
-		bzero(text, MAXLINE);
+		bzero(buff, MAXSIZE);
+		bzero(text, MAXSIZE);
 		verified = 0;
 		while(getline(&b, &bufsize, fptr) != -1)
 		{
@@ -69,10 +67,10 @@ int main(int argc, char** argv)
 			strncpy(cpass, token2, strlen(token2));
 			if(strcmp(user, cuser) == 0 && strcmp(pass, cpass) == 0)
 				verified = 1;
-			bzero(buff, MAXLINE);
-			bzero(text, MAXLINE);
-			bzero(cuser, 50);
-			bzero(cpass, 50);
+			bzero(buff, MAXSIZE);
+			bzero(text, MAXSIZE);
+			bzero(cuser, MAXSIZE);
+			bzero(cpass, MAXSIZE);
 		}
 		
 		if(verified)
@@ -82,8 +80,8 @@ int main(int argc, char** argv)
 		}
 		else
 		{
-		fprintf(stdout, "user has no right and he should go home\n");
-		write(connfd, "no dice", 64);
+		fprintf(stdout, "The users credentials are invalid\n");
+		write(connfd, "invalid_id", 64);
 		close(connfd);
 		continue;
 		}
@@ -94,13 +92,13 @@ int main(int argc, char** argv)
 		do
 		{
 
-			bzero(buff, MAXLINE); 
-			read(connfd, buff, MAXLINE);
+			bzero(buff, MAXSIZE); 
+			read(connfd, buff, MAXSIZE);
 			fprintf(stdout, "recieved message:%s.\n", buff);
 			/* write(connfd, "ACK", 64); */
 			
 
-			bzero(text, MAXLINE);
+			bzero(text, MAXSIZE);
 			strncpy(text, buff, strlen(buff));
 			token1 = strtok(text, " ");
 			if(strlen(token1) > 1)
@@ -113,8 +111,8 @@ int main(int argc, char** argv)
 						token2 = strtok(NULL, " ");
 						fprintf(stdout, "client requested a file\n");
 						write(connfd, "ACK", 64);
-						bzero(buff, MAXLINE);
-						read(connfd, buff, MAXLINE);
+						bzero(buff, MAXSIZE);
+						read(connfd, buff, MAXSIZE);
 						
 						if(strcmp(buff, "cancel") == 0)
 						{
@@ -157,8 +155,8 @@ int main(int argc, char** argv)
 
 						
 						write(connfd, "ACK", 64); /* if no error, ready for file size */
-						bzero(buff, MAXLINE);
-						read(connfd, buff, MAXLINE);
+						bzero(buff, MAXSIZE);
+						read(connfd, buff, MAXSIZE);
 		
 						file_size = atoi(buff);
 						fprintf(stdout, "file_size = %d\n", file_size);
@@ -171,19 +169,19 @@ int main(int argc, char** argv)
 						}
 				
 						counter = 0;
-						while((counter * MAXLINE) < file_size)
+						while((counter * MAXSIZE) < file_size)
 						{
-							bzero(buff, MAXLINE);
+							bzero(buff, MAXSIZE);
 							write(connfd, "ACK", 64); /* ready for data chunks */
-							read(connfd, buff, MAXLINE);
-							if(((counter+1)*MAXLINE) > file_size) /* lets not load the file with extra data or null chars*/
+							read(connfd, buff, MAXSIZE);
+							if(((counter+1)*MAXSIZE) > file_size) /* lets not load the file with extra data or null chars*/
 							{
-      								write(fp, buff, file_size%(counter*MAXLINE));
-								fprintf(stdout, "wrote remaining %d bytes\n", (counter*MAXLINE));
+      								write(fp, buff, file_size%(counter*MAXSIZE));
+								fprintf(stdout, "wrote remaining %d bytes\n", (counter*MAXSIZE));
 							}
 							else
 							{
-								write(fp, buff, MAXLINE);
+								write(fp, buff, MAXSIZE);
 							}
 							counter++;
 						}
@@ -268,20 +266,7 @@ int send_over_socket(int output_fd, char *file_name)
 		count++;
 	}
 	fprintf(stdout, "count: %d\n", count);
-/*
-	counter = 0;
-	while((counter * MAXSIZE) <= file_size)
-	{
-		bzero(send_buff, MAXSIZE);
-		value = read(fp, send_buff, MAXSIZE); 
-		if(value == -1) 
-			fprintf(stdout, "failed to read from file. errno: %s\n", strerror(errno)); 
-		value = write(output_fd, send_buff, MAXSIZE); 
-		bzero(send_buff, MAXSIZE);
-		read(output_fd, send_buff, MAXSIZE); 
-		counter++;
-	}
-*/
+
 	close(fp);
 	return value;
 }

@@ -20,9 +20,5 @@
 #define PORT 9002
 #define SA struct sockaddr
 
-char *removeNewline(char *str)
-{	/* removes newline from str. usage: str = removeNewline(str); */
-	char *temp;
-	temp = strtok(str, "\n");
-	return temp;
-}
+#define MAXSIZE 256
+#define ADDRSIZE 20

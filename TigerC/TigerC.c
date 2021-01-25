@@ -1,7 +1,4 @@
 #include "unp.h"
-#define MAXLINE 256
-#define MAXSIZE 256
-#define ADDRSIZE 20
 
 int send_over_socket(int output_fd, char *file_name);
 
@@ -20,12 +17,12 @@ int main(int argc, char** argv)
 
 
 	char *buffer, *token0, *token1, *token2, *token3, *token4;
-	size_t bufsize = MAXLINE; /* variable to be passed to getline() */
+	size_t bufsize = MAXSIZE; /* variable to be passed to getline() */
 	int convert_bit, counter, fp, file_size;
 	char addr[ADDRSIZE] = "";
-	char text[MAXLINE];
-	char user[50];
-	char pass[50];
+	char text[MAXSIZE];
+	char user[MAXSIZE];
+	char pass[MAXSIZE];
 	buffer = (char *)malloc(bufsize * sizeof(char)); /* getline() requires dynamically allocated data for possible resizing */
 
 	if(buffer == NULL)
@@ -53,8 +50,9 @@ int main(int argc, char** argv)
 	/* parse input from stdin */
 	bzero(buffer, bufsize); /* clear buffer */
 	getline(&buffer, &bufsize, stdin); /* reads stream from stdin to buffer */
-	bzero(text, MAXLINE); /* clear text array  */
+	bzero(text, MAXSIZE); /* clear text array  */
 	strncpy(text, buffer, strlen(buffer));  /* copy the value from buffer into text */
+	token0 = strtok(text, "\n"); /* remove newline char */
 
 	token1 = strtok(text, " "); /* the space is the delimiter and token1 is the command to be executed */
 	if(strcmp(token1, "tconnect") == 0) /* if the command is to connect */
@@ -102,12 +100,12 @@ int main(int argc, char** argv)
 		fprintf(stdout, "There was an error making a conection to the remote socket... %s\n\n", strerror(errno));
 
 	/* give server username and password */
-	bzero(buffer, MAXLINE);
+	bzero(buffer, MAXSIZE);
 	sprintf(buffer, "auth %s %s", user, pass);
 	fprintf(stdout, "authenticating credentials... %s %s\n", user, pass);
-	write(sockfd, buffer, MAXLINE);
-	bzero(buffer, MAXLINE);
-	read(sockfd, buffer, MAXLINE);
+	write(sockfd, buffer, MAXSIZE);
+	bzero(buffer, MAXSIZE);
+	read(sockfd, buffer, MAXSIZE);
 	fprintf(stdout, "server response: %s\n", buffer);
 	if(strcmp(buffer, "proceed") != 0)
 	{
@@ -125,7 +123,7 @@ int main(int argc, char** argv)
 		bzero(text, bufsize);
 		strncpy(text, buffer, strlen(buffer));
 
-		token0 = strtok(text, " ");
+		token0 = strtok(text, "\n");
 		fprintf(stdout, "write to server: %s.\n", token0);
 		write(sockfd, token0, bufsize); /* write the command to the socket */
 
@@ -164,7 +162,7 @@ int main(int argc, char** argv)
 					}
 					
 
-					bzero(buffer, MAXLINE);
+					bzero(buffer, MAXSIZE);
 					read(sockfd, buffer,bufsize);
 					if(strcmp(buffer, "ENOENT") == 0)
 					{
@@ -194,22 +192,22 @@ int main(int argc, char** argv)
 					}
 					
 					counter = 0;
-					while((counter * MAXLINE) < file_size)
+					while((counter * MAXSIZE) < file_size)
 					{
-						bzero(buffer, MAXLINE);
+						bzero(buffer, MAXSIZE);
 						write(sockfd, "ACK", 64); /* ready for data chunks */
-						read(sockfd, buffer, MAXLINE);
-						if(((counter+1)*MAXLINE) > file_size) /* lets not load the file with extra data or null chars*/
+						read(sockfd, buffer, MAXSIZE);
+						if(((counter+1)*MAXSIZE) > file_size) /* lets not load the file with extra data or null chars*/
 						{
-							write(fp, buffer, file_size%(counter*MAXLINE));
+							write(fp, buffer, file_size%(counter*MAXSIZE));
 						}
 						else
 						{
-							write(fp, buffer, MAXLINE);
+							write(fp, buffer, MAXSIZE);
 						}
 						counter++;
 					}
-					fprintf(stdout, "count is: %d and should be %d\n", counter, (file_size/MAXLINE+1));
+					fprintf(stdout, "count is: %d and should be %d\n", counter, (file_size/MAXSIZE+1));
 					close(fp);
 					fprintf(stdout, "file transfered\n");
 					write(sockfd, "ACK", 64);
