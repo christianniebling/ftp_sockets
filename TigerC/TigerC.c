@@ -38,7 +38,7 @@ int main(int argc, char** argv)
 		switch(opt)
 		{
 			case 'h':
-				printf("user should use run.sh script to interface with program.\n");
+				printf("User should use run.sh script to interface with program.\n");
 				return 0;
 			case '?':
 				printf("\nUsage: \n[-h HELP] [--help]\n");
@@ -81,9 +81,9 @@ int main(int argc, char** argv)
 
 	/* create socket */
 	if( (sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-		fprintf(stdout, "failed socket creation\n");
+		fprintf(stdout, "Failed socket creation\n");
 	else
-		fprintf(stdout, "successful socket creation\n");
+		fprintf(stdout, "Successful socket creation\n");
 
 
 	/* specify an address for the socket */
@@ -92,7 +92,7 @@ int main(int argc, char** argv)
 	servaddr.sin_port = htons(PORT);
 	convert_bit = inet_pton(AF_INET, addr, &servaddr.sin_addr);
 	if(convert_bit <= 0)
-		{fprintf(stdout, "failed to convert addr: %s... errcode: %d\n", addr, convert_bit);}
+		{fprintf(stdout, "Failed to convert addr: %s... errcode: %d\n", addr, convert_bit);}
 
 
 	/* connect to the server */
@@ -107,7 +107,7 @@ int main(int argc, char** argv)
 	bzero(buffer, MAXSIZE);
 	read(sockfd, buffer, MAXSIZE);
 	fprintf(stdout, "server response: %s\n", buffer);
-	if(strcmp(buffer, "proceed") != 0)
+	if(strcmp(buffer, "proceed") != 0) /* if the credentials were denied */
 	{
 	close(sockfd);
 	fprintf(stdout, "credentials denied :(. client terminating\n");
@@ -119,7 +119,7 @@ int main(int argc, char** argv)
 	while(flag) /* main while loop */
 	{
 		bzero(buffer, bufsize); 
-		getline(&buffer, &bufsize, stdin);
+		getline(&buffer, &bufsize, stdin); /* read additional commands from input buffer */
 		bzero(text, bufsize);
 		strncpy(text, buffer, strlen(buffer));
 
@@ -185,7 +185,7 @@ int main(int argc, char** argv)
 					
 					if(file_size == 0)
 					{
-						write(sockfd, "ACK", 64); /*this might cause an error*/
+						write(sockfd, "ACK", 64);
 						close(fp);
 						fprintf(stdout, "file recieved\n");
 						break;
@@ -218,7 +218,7 @@ int main(int argc, char** argv)
 
 				}
 				else
-					fprintf(stdout, "zobe\n");
+					fprintf(stdout, "Unrecognized command\n");
 				break;
 
 			case 'p':
@@ -243,7 +243,7 @@ int main(int argc, char** argv)
 
 				}
 				else
-					fprintf(stdout, "wobe\n");
+					fprintf(stdout, "Unrecognized command\n");
 				break;
 			case 'x':
 				if(strcmp(token1, "exit") == 0)
@@ -284,8 +284,6 @@ int send_over_socket(int output_fd, char *file_name)
 	write(output_fd, send_buff, sizeof(obj));
 	bzero(send_buff, MAXSIZE);
 	read(output_fd, send_buff, MAXSIZE); /*wait for ack */	
-
-
 
 	bzero(send_buff, MAXSIZE);
 	while((bytes_read = read(fp, send_buff, MAXSIZE)) > 0)

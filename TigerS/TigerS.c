@@ -1,4 +1,4 @@
-#include "unp.h"
+include "unp.h"
 
 int send_over_socket(int output_fd, char *file_name);
 
@@ -125,10 +125,9 @@ int main(int argc, char** argv)
 						else
 							fprintf(stdout, "The file should have sent over the socket\n");
 						
-						/*write(connfd, "ACK", 64);*/
 					}
 					else
-						fprintf(stdout, "zobe\n");
+						fprintf(stdout, "Unrecgonized command\n");
 					break;
 
 				case 'p':
